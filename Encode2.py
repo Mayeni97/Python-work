@@ -1,55 +1,101 @@
 import math
 import numpy as np
 
+
 def text_to_ascii_matrix(message):
     # Convert the text string into ASCII
-    message = (list(message.encode('ascii')))
-    
-
-    # Calculate the length of the string
-    length = len(message)
+    message_ascii = list(message.encode("ascii"))
 
     # Determine the value of n
-    n = math.ceil(length/2)
+    n = math.ceil(len(message_ascii) / 2)
 
     # Divide the string into two equal parts of length n
-    row1 = message[:n]
-    row2 = message[n:]
+    row1 = message_ascii[:n]
+    row2 = message_ascii[n:]
+
+    # Add padding to ensure both rows have the same length
+    if len(row1) < len(row2):
+        row1.extend([0] * (len(row2) - len(row1)))
+    else:
+        row2.extend([0] * (len(row1) - len(row2)))
 
     # Create a 2xn matrix
-    matrix = [list(row1), list(row2)]
+    matrix = np.array([row1, row2])
 
     return matrix
+
 
 def matrix_set_up(rows, columns, matrix):
-    entries = list(map(int, matrix.split()))
-    matrix = np.array(entries).reshape(rows, columns)
+    try:
+        entries = list(map(int, matrix.split()))
+        if len(entries) != rows * columns:
+            raise ValueError
+        matrix = np.array(entries).reshape(rows, columns)
+    except ValueError:
+        print(
+            "Invalid matrix input. Please enter a matrix with the correct number of rows and columns."
+        )
+        return None
 
     return matrix
 
-def Multipling_Matrix_and_Message(text_to_ascii_matrix, matrix):
-    result = np.dot(text_to_ascii_matrix, matrix)
+
+def multiply_matrix_and_message(matrix, text_matrix):
+    result = np.dot(matrix, text_matrix)
 
     return result
-    
+
+
+def encrypt_message(message, matrix):
+    text_matrix = text_to_ascii_matrix(message)
+    result = multiply_matrix_and_message(matrix, text_matrix)
+
+    # Format the output as a string of integers separated by spaces
+    encrypted_message = " ".join([str(int(val)) for val in np.nditer(result)])
+
+    return encrypted_message
+
+
+# def decrypt_message(encrypted_message, matrix):
+#     try:
+#         entries = list(map(int, encrypted_message.split()))
+#         if len(entries) != matrix.shape[0] * 2:
+#             raise ValueError
+#         text_matrix = np.array(entries).reshape(2, matrix.shape[0])
+#         result = multiply_matrix_and_message(matrix.T, text_matrix)
+
+#         # Convert the result back to a string
+#         decrypted_message = ''.join([chr(int(val)) for val in np.nditer(result)])
+#     except ValueError:
+#         print("Invalid encrypted message input. Please enter a valid encrypted message.")
+#         return None
+
+#     return decrypted_message
 
 
 def main():
-    while True:
-        message = input("What is your message?:")
-        rows = int(input("Enter the number of rows for the matrix:"))
-        columns = int(input("Enter the number of columns matrix:"))
-        matrix = (input("Enter the matrix in a single line (separated by space): "))
-        print("Is '"+ message + "' what you want to sent out?: ")
-        answer = input("Enter yes or no: ")
-        if answer == "yes":
-            print(text_to_ascii_matrix(message))
-            print(matrix_set_up(rows,columns,matrix))
-            Complete = Multipling_Matrix_and_Message(text_to_ascii_matrix, matrix)
-            print(Complete)
-        elif answer == "no":
-            print("What is the message?")
-        else:
-            print("Please enter yes or no")
-        
-main()
+    # Get user input for the message, matrix size, and matrix values
+    message = input("What is your message?: ")
+    rows = int(input("Enter the number of rows for the matrix: "))
+    columns = int(input("Enter the number of columns for the matrix: "))
+    matrix_input = input("Enter the matrix values (separated by spaces): ")
+
+    # Set up the matrix
+    matrix = matrix_set_up(rows, columns, matrix_input)
+    if matrix is None:
+        return
+
+    # Encrypt the message
+    encrypted_message = encrypt_message(message, matrix)
+    print("Encrypted message:", encrypted_message)
+
+    # Decrypt the message
+    # decrypt_answer = input("Do you want to decrypt the message? Enter yes or no: ")
+    # if decrypt_answer.lower() == 'yes':
+    #     decrypted_message = decrypt_message(encrypted_message, matrix)
+    #     if decrypted_message is not None:
+    #         print("Decrypted message:", decrypted_message)
+
+
+if __name__ == "__main__":
+    main()
