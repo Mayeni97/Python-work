@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from numpy.linalg import inv
 
 
 def text_to_ascii_matrix(message):
@@ -56,21 +57,24 @@ def encrypt_message(message, matrix):
     return encrypted_message
 
 
-# def decrypt_message(encrypted_message, matrix):
-#     try:
-#         entries = list(map(int, encrypted_message.split()))
-#         if len(entries) != matrix.shape[0] * 2:
-#             raise ValueError
-#         text_matrix = np.array(entries).reshape(2, matrix.shape[0])
-#         result = multiply_matrix_and_message(matrix.T, text_matrix)
+def decrypt_message(encrypted_message, matrix):
+    try:
+        entries = list(map(int, encrypted_message.split()))
+        if len(entries) != matrix.shape[0] * 2:
+            raise ValueError
+        text_matrix = np.array(entries).reshape(2, matrix.shape[0])
+        matrix_inv = inv(matrix)
+        result = multiply_matrix_and_message(matrix_inv, text_matrix)
 
-#         # Convert the result back to a string
-#         decrypted_message = ''.join([chr(int(val)) for val in np.nditer(result)])
-#     except ValueError:
-#         print("Invalid encrypted message input. Please enter a valid encrypted message.")
-#         return None
+        # Convert the result back to a string
+        decrypted_message = ''.join([chr(int(val)) for val in np.nditer(result)])
+    except ValueError:
+        print("Invalid encrypted message input. Please enter a valid encrypted message.")
+        return None
 
-#     return decrypted_message
+    return decrypted_message
+
+
 
 
 def main():
@@ -90,11 +94,11 @@ def main():
     print("Encrypted message:", encrypted_message)
 
     # Decrypt the message
-    # decrypt_answer = input("Do you want to decrypt the message? Enter yes or no: ")
-    # if decrypt_answer.lower() == 'yes':
-    #     decrypted_message = decrypt_message(encrypted_message, matrix)
-    #     if decrypted_message is not None:
-    #         print("Decrypted message:", decrypted_message)
+    decrypt_answer = input("Do you want to decrypt the message? Enter yes or no: ")
+    if decrypt_answer.lower() == 'yes':
+        decrypted_message = decrypt_message(encrypted_message, matrix)
+    if decrypted_message is not None:
+        print("Decrypted message:", decrypted_message)
 
 
 if __name__ == "__main__":
