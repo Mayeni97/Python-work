@@ -60,6 +60,7 @@ def encrypt_message(message, matrix):
 def decrypt_message(encrypted_message, matrix):
     try:
         entries = list(map(int, encrypted_message.split()))
+        print(entries,matrix.shape[0])
         if len(entries) != matrix.shape[0] * 2:
             raise ValueError
         text_matrix = np.array(entries).reshape(2, matrix.shape[0])
